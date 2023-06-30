@@ -1,0 +1,17 @@
+
+[project]
+name = "space_traders_wrapper"
+version = "0.1.0"
+description = "A wrapper for SpaceTraders API"
+authors = [
+    {name = "Daniel J Brown", email = "browndj3@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
