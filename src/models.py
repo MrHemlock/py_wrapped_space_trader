@@ -23,7 +23,7 @@ class WaypointType(StrEnum):
     UNSTABLE = auto()
 
 
-class Goods(StrEnum):
+class TradeGoodsSymbols(StrEnum):
     PRECIOUS_STONES = auto()
     QUARTZ_SAND = auto()
     SILICON_CRYSTALS = auto()
@@ -148,6 +148,92 @@ class FactionSymbols(StrEnum):
     AEGIS = auto()
     
 
+class FactionTraitSymbols(StrEnum):
+    BUREAUCRATIC = auto()
+    SECRETIVE = auto()
+    CAPITALISTIC = auto()
+    INDUSTRIOUS = auto()
+    PEACEFUL = auto()
+    DISTRUSTFUL = auto()
+    WELCOMING = auto()
+    SMUGGLERS = auto()
+    SCAVENGERS = auto()
+    REBELLIOUS = auto()
+    EXILES = auto()
+    PIRATES = auto()
+    RAIDERS = auto()
+    CLAN = auto()
+    GUILD = auto()
+    DOMINION = auto()
+    FRINGE = auto()
+    FORSAKEN = auto()
+    ISOLATED = auto()
+    LOCALIZED = auto()
+    ESTABLISHED = auto()
+    NOTABLE = auto()
+    DOMINANT = auto()
+    INESCAPABLE = auto()
+    INNOVATIVE = auto()
+    BOLD = auto()
+    VISIONARY = auto()
+    CURIOUS = auto()
+    DARING = auto()
+    EXPLORATORY = auto()
+    RESOURCEFUL = auto()
+    FLEXIBLE = auto()
+    COOPERATIVE = auto()
+    UNITED = auto()
+    STRATEGIC = auto()
+    INTELLIGENT = auto()
+    RESEARCH_FOCUSED = auto()
+    COLLABORATIVE = auto()
+    PROGRESSIVE = auto()
+    MILITARISTIC = auto()
+    TECHNOLOGICALLY_ADVANCED = auto()
+    AGGRESSIVE = auto()
+    IMPERIALISTIC = auto()
+    TREASURE_HUNTERS = auto()
+    DEXTEROUS = auto()
+    UNPREDICTABLE = auto()
+    BRUTAL = auto()
+    FLEETING = auto()
+    ADAPTABLE = auto()
+    SELF_SUFFICIENT = auto()
+    DEFENSIVE = auto()
+    PROUD = auto()
+    DIVERSE = auto()
+    INDEPENDENT = auto()
+    SELF_INTERESTED = auto()
+    FRAGMENTED = auto()
+    COMMERCIAL = auto()
+    FREE_MARKETS = auto()
+    ENTREPRENEURIAL = auto()
+
+
+class MarketSupply(StrEnum):
+    SCARCE = auto()
+    LIMITED = auto()
+    MODERATE = auto()
+    ABUNDANT = auto()
+
+
+class TransactionType(StrEnum):
+    PURCHASE = auto()
+    SELL = auto()
+
+
+class ShipType(StrEnum):
+    SHIP_PROBE = auto()
+    SHIP_MINING_DRONE = auto()
+    SHIP_INTERCEPTOR = auto()
+    SHIP_LIGHT_HAULER = auto()
+    SHIP_COMMAND_FRIGATE = auto()
+    SHIP_EXPLORER = auto()
+    SHIP_HEAVY_FREIGHTER = auto()
+    SHIP_LIGHT_SHUTTLE = auto()
+    SHIP_ORE_HOUND = auto()
+    SHIP_REFINING_FREIGHTER = auto()
+
 
 @dataclass
 class Agent:
@@ -171,7 +257,7 @@ class ConnectedSystem:
     symbol: str
     sectorSymbol: str
     type_: WaypointType
-    factionSymbol: str
+    factionSymbol: FactionSymbols
     x: int
     y: int
     distance: int
@@ -227,7 +313,7 @@ class Extraction:
 
 @dataclass
 class ExtractionYield:
-    symbol: Goods
+    symbol: TradeGoodsSymbols
     units: int
 
 
@@ -241,3 +327,67 @@ class Faction:
     isRecruiting: bool
 
 
+@dataclass
+class FactionTrait:
+    symbol: FactionTraitSymbols
+    name: str
+    description: str
+
+
+@dataclass
+class JumpGate:
+    jumpRange: int
+    factionSymbol: FactionSymbols
+    connectedSystems: list[ConnectedSystem]
+
+
+@dataclass
+class Market:
+    symbol: str
+    exports: list[TradeGood]
+    imports: list[TradeGood]
+    exchange: list[TradeGood]
+    transactions: list[MarketTransaction]
+    tradeGoods: list[MarketTradeGood]
+
+
+@dataclass
+class MarketTradeGood:
+    symbol: TradeGoodsSymbols
+    tradeVolume: int
+    supply: MarketSupply
+    purchasePrice: int
+    sellPrice: int
+
+
+@dataclass
+class MarketTransaction:
+    waypointSymbol: str
+    shipSymbol: str
+    tradeSymbol: TradeGoodsSymbols
+    type_: TransactionType
+    units: int
+    pricePerUnit: int
+    totalPrice: int
+    timestamp: datetime
+
+
+@dataclass
+class Meta:
+    total: int
+    page: int
+    limit: int
+
+
+@dataclass
+class ScannedShip:
+    symbol: str
+    registration: ShipRegistration
+    
+
+
+@dataclass
+class TradeGood:
+    symbol: TradeGoodsSymbols
+    name: str
+    description: str
