@@ -1,17 +1,35 @@
 from __future__ import annotations
+
 from enum import auto, StrEnum
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic.alias_generators import to_camel
 
 
-class ContractType(StrEnum):
+class SymbolEnums(StrEnum):
+    @staticmethod
+    def _generate_next_value_(
+        name: str,
+        start: int,
+        count: int,
+        last_values: list[Any],
+    ) -> Any:
+        return name.upper()
+
+
+class ApiNamingModel(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel)
+
+
+class ContractType(SymbolEnums):
     PROCURMENT = auto()
     TRANSPORT = auto()
     SHUTTLE = auto()
 
 
-class WaypointType(StrEnum):
+class WaypointType(SymbolEnums):
     NEUTRON_STAR = auto()
     RED_STAR = auto()
     ORANGE_STAR = auto()
@@ -24,7 +42,7 @@ class WaypointType(StrEnum):
     UNSTABLE = auto()
 
 
-class TradeGoodsSymbols(StrEnum):
+class TradeGoodsSymbols(SymbolEnums):
     PRECIOUS_STONES = auto()
     QUARTZ_SAND = auto()
     SILICON_CRYSTALS = auto()
@@ -137,7 +155,7 @@ class TradeGoodsSymbols(StrEnum):
     MOUNT_TURRET_I = auto()
 
 
-class FactionSymbols(StrEnum):
+class FactionSymbols(SymbolEnums):
     COSMIC = auto()
     VOID = auto()
     GALACTIC = auto()
@@ -147,9 +165,9 @@ class FactionSymbols(StrEnum):
     CORSAIRS = auto()
     OBSIDIAN = auto()
     AEGIS = auto()
-    
 
-class FactionTraitSymbols(StrEnum):
+
+class FactionTraitSymbols(SymbolEnums):
     BUREAUCRATIC = auto()
     SECRETIVE = auto()
     CAPITALISTIC = auto()
@@ -211,19 +229,19 @@ class FactionTraitSymbols(StrEnum):
     ENTREPRENEURIAL = auto()
 
 
-class MarketSupply(StrEnum):
+class MarketSupply(SymbolEnums):
     SCARCE = auto()
     LIMITED = auto()
     MODERATE = auto()
     ABUNDANT = auto()
 
 
-class TransactionType(StrEnum):
+class TransactionType(SymbolEnums):
     PURCHASE = auto()
     SELL = auto()
 
 
-class ShipType(StrEnum):
+class ShipType(SymbolEnums):
     SHIP_PROBE = auto()
     SHIP_MINING_DRONE = auto()
     SHIP_INTERCEPTOR = auto()
@@ -236,25 +254,86 @@ class ShipType(StrEnum):
     SHIP_REFINING_FREIGHTER = auto()
 
 
-class Agent(BaseModel):
-    accountId: str
+class Agent(ApiNamingModel):
+    account_id: str
     symbol: str
     headquarters: str
     credits: int
-    startingFaction: str
+    starting_faction: str
 
 
-class Chart(BaseModel):
-    waypointSymbol: str
-    submittedBy: str
-    submittedOn: datetime
+class Chart(ApiNamingModel):
+    waypoint_symbol: str
+    submitted_by: str
+    submitted_on: datetime
 
 
-class ConnectedSystem(BaseModel):
+class ConnectedSystem(ApiNamingModel):
     symbol: str
-    sectorSymbol: str
+    sector_symbol: str
     type: WaypointType
-    factionSymbol: FactionSymbols
+    faction_symbol: FactionSymbols
     x: int
     y: int
     distance: int
+
+
+class Contract(ApiNamingModel):
+    id: str
+    faction_symbol: FactionSymbols
+    type: ContractType
+    terms: ContractTerms
+    accepted: bool
+    fulfilled: bool
+    expiration: datetime | None
+    deadline_to_accept: datetime | None
+
+
+class ContractDeliverGood(ApiNamingModel):
+    trade_symbol: TradeGoodsSymbols
+    destination_symbol: str
+    units_required: int
+    units_fulfilled: int
+
+
+class ContractPayment(ApiNamingModel):
+    on_accepted: int
+    on_fulfilled: int
+
+
+class ContractTerms(ApiNamingModel):
+    deadline: datetime
+    payment: ContractPayment
+    deliver: list[ContractDeliverGood]
+
+
+class Cooldown(ApiNamingModel):
+    ship_symbol: str
+    total_seconds: int
+    remaining_seconds: int
+    expiration: datetime
+
+
+class Extraction(ApiNamingModel):
+    ship_symbol: str
+    yield_: ExtractionYield
+
+
+class ExtractionYield(ApiNamingModel):
+    symbol: TradeGoodsSymbols
+    units: int
+
+
+class Faction(ApiNamingModel):
+    symbol: FactionSymbols
+    name: str
+    description: str
+    headquarters: str
+    traits: list[FactionTrait]
+    is_recruiting: bool
+
+
+class FactionTrait(ApiNamingModel):
+    symbol: FactionTraitSymbols
+    name: str
+    description: str
