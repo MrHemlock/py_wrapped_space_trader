@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from enum import auto, StrEnum
 from datetime import datetime
-from typing import Any
+from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    conint,
+    constr,
+    ValidationError,
+)
 from pydantic.alias_generators import to_camel
 
 
@@ -203,7 +209,7 @@ class ShipMountType(SymbolEnums):
     MOUNT_TURRET_I = auto()
 
 
-class ShipNavFightMode(SymbolEnums):
+class ShipNavFlightMode(SymbolEnums):
     DRIFT = auto()
     STEALTH = auto()
     CRUISE = auto()
@@ -214,6 +220,31 @@ class ShipNavStatus(SymbolEnums):
     IN_TRANSIT = auto()
     IN_ORBIT = auto()
     DOCKED = auto()
+
+
+class ShipReactorType(SymbolEnums):
+    REACTOR_SOLAR_I = auto()
+    REACTOR_FUSION_I = auto()
+    REACTOR_FISSION_I = auto()
+    REACTOR_CHEMICAL_I = auto()
+    REACTOR_ANTIMATTER_I = auto()
+
+
+class ShipRole(SymbolEnums):
+    FABRICATOR = auto()
+    HARVESTER = auto()
+    HAULER = auto()
+    INTERCEPTOR = auto()
+    EXCAVATOR = auto()
+    TRANSPORT = auto()
+    REPAIR = auto()
+    SURVEYOR = auto()
+    COMMAND = auto()
+    CARRIER = auto()
+    PATROL = auto()
+    SATELLITE = auto()
+    EXPLORER = auto()
+    REFINERY = auto()
 
 
 class SystemType(SymbolEnums):
@@ -360,11 +391,12 @@ class WaypointType(SymbolEnums):
 
 
 class Agent(ApiModel):
-    account_id: str
+    account_id = constr(min_length=1) 
     symbol: str
     headquarters: str
     credits: int
-    starting_faction: str
+    starting_faction = constr(min_length=1)
+    ship_count: int
 
 
 class Chart(ApiModel):
@@ -488,10 +520,10 @@ class ScannedShip(ApiModel):
     symbol: str
     registration: ShipRegistration
     nav: ShipNav
-    frame: ShipFrameType
-    reactor: ShipReactorType
-    engine: ShipEngineType
-    mounts: ShipMountType
+    frame: dict[str, ShipFrameType] | None
+    reactor: dict[str, ShipReactorType] | None
+    engine: dict[str, ShipEngineType] | None
+    mounts: dict[str, ShipMountType] | None
     
 
 class ScannedSystem(ApiModel):
@@ -544,7 +576,7 @@ class ShipCargoItem(ApiModel):
 
 # Figure out a way to handle this. A bit weird it's just a value
 class ShipCondition(ApiModel):
-    value: int
+    value: conint(ge=0, le=100) # type: ignore
 
 
 class ShipCrew(ApiModel):
@@ -560,7 +592,7 @@ class ShipEngine(ApiModel):
     symbol: ShipEngineType
     name: str
     description: str
-    condition: int
+    condition: ShipCondition
     speed: int
     requirements: ShipRequirements
 
@@ -569,7 +601,7 @@ class ShipFrame(ApiModel):
     symbol: ShipFrameType
     name: str
     description: str
-    condition: int
+    condition: ShipCondition
     module_slots: int
     mounting_points: int
     fuel_capacity: int
@@ -608,7 +640,7 @@ class ShipMount(ApiModel):
     symbol: ShipMountType
     name: str
     description: str
-    strength: int
+    strength: conint(ge=0) # type: ignore
     deposits: list[DepositType]
     requirements: ShipRequirements
 
@@ -618,7 +650,53 @@ class ShipNav(ApiModel):
     waypoint_symbol: str
     route: ShipNavRoute
     status: ShipNavStatus
-    flight_mode: ShipNavFightMode = ShipNavFightMode.CRUISE
+    flight_mode: ShipNavFlightMode = ShipNavFlightMode.CRUISE
+
+
+class ShipNavRoute(ApiModel):
+    destination: ShipNavRouteWaypoint
+    departure: ShipNavRouteWaypoint
+    departure_time: datetime
+    arrival: datetime
+
+
+class ShipNavRouteWaypoint(ApiModel):
+    symbol: str
+    type: WaypointType
+    system_symbol: str
+    x: int
+    y: int
+
+
+class ShipReactor(ApiModel):
+    symbol: ShipReactorType
+    name: str
+    description: str
+    condition: conint(ge=0, le=100) # type: ignore
+    power_outage: conint(ge=1) # type: ignore
+    requirements: ShipRequirements
+
+
+class ShipRegistration(ApiModel):
+    name: str
+    faction_symbol: str
+    role: ShipRole
+
+
+class ShipRequirements(ApiModel):
+    power: int
+    crew: int
+    slots: int
+
+
+class ShipYard(ApiModel):
+    symbol: str
+    ship_types: list[dict[str, ShipType]]
+    transactions: list[ShipyardTransaction]
+    ships: list[Ship]
+
+
+
 
 
 class TradeGood:
