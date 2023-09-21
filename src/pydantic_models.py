@@ -1,14 +1,14 @@
+
 from __future__ import annotations
 
 from enum import auto, StrEnum
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from pydantic import (
     BaseModel,
     ConfigDict,
-    conint,
-    constr,
+    Field,
     ValidationError,
 )
 from pydantic.alias_generators import to_camel
@@ -62,6 +62,15 @@ class FactionSymbols(SymbolEnums):
     CORSAIRS = auto()
     OBSIDIAN = auto()
     AEGIS = auto()
+    UNITED = auto()
+    SOLITARY = auto()
+    OMEGA = auto()
+    ECHO = auto()
+    LORDS = auto()
+    CULT = auto()
+    ANCIENTS = auto()
+    SHADOW = auto()
+    ETHERAL = auto()
 
 
 class FactionTraitSymbols(SymbolEnums):
@@ -391,11 +400,11 @@ class WaypointType(SymbolEnums):
 
 
 class Agent(ApiModel):
-    account_id = constr(min_length=1) 
-    symbol: str
+    account_id: str = Field(min_length=1) 
+    symbol: str = Field(min_length=3, max_length=14)
     headquarters: str
     credits: int
-    starting_faction = constr(min_length=1)
+    starting_faction: str = Field(min_length=1)
     ship_count: int
 
 
@@ -406,8 +415,8 @@ class Chart(ApiModel):
 
 
 class ConnectedSystem(ApiModel):
-    symbol: str
-    sector_symbol: str
+    symbol: str = Field(min_length=1)
+    sector_symbol: str = Field(min_length=1)
     type: SystemType
     faction_symbol: FactionSymbols
     x: int
@@ -416,19 +425,19 @@ class ConnectedSystem(ApiModel):
 
 
 class Contract(ApiModel):
-    id: str
+    id = constr(min_length=1)
     faction_symbol: FactionSymbols
     type: ContractType
     terms: ContractTerms
-    accepted: bool
-    fulfilled: bool
+    accepted: bool = False
+    fulfilled: bool = False
     expiration: datetime | None
     deadline_to_accept: datetime | None
 
 
 class ContractDeliverGood(ApiModel):
     trade_symbol: TradeGoodsSymbols
-    destination_symbol: str
+    destination_symbol = constr(min_length=1)
     units_required: int
     units_fulfilled: int
 
@@ -445,14 +454,14 @@ class ContractTerms(ApiModel):
 
 
 class Cooldown(ApiModel):
-    ship_symbol: str
-    total_seconds: int
-    remaining_seconds: int
+    ship_symbol = constr(min_length=1)
+    total_seconds = conint(ge=0)
+    remaining_seconds = conint(ge=0)
     expiration: datetime
 
 
 class Extraction(ApiModel):
-    ship_symbol: str
+    ship_symbol = constr(min_length=1)
     yield_: ExtractionYield
 
 
@@ -463,9 +472,9 @@ class ExtractionYield(ApiModel):
 
 class Faction(ApiModel):
     symbol: FactionSymbols
-    name: str
-    description: str
-    headquarters: str
+    name = constr(min_length=1)
+    description = constr(min_length=1)
+    headquarters = constr(min_length=1)
     traits: list[FactionTrait]
     is_recruiting: bool
 
@@ -493,42 +502,42 @@ class Market(ApiModel):
 
 class MarketTradeGood(ApiModel):
     symbol: TradeGoodsSymbols
-    trade_volume: int
+    trade_volume = conint(ge=1)
     supply: MarketSupply
-    purchase_price: int
-    sell_price: int
+    purchase_price = conint(ge=0)
+    sell_price = conint(ge=0)
 
 
 class MarketTransaction(ApiModel):
     waypoint_symbol: str
     ship_symbol: str
     trade_symbol: TradeGoodsSymbols
-    type_: TransactionType
-    units: int
-    price_perUnit: int
-    total_price: int
+    type_: Literal["PURCHASE"] | Literal["SELL"]
+    units = conint(ge=0)
+    price_perUnit = conint(ge=0)
+    total_price = conint(ge=0)
     timestamp: datetime
 
 
 class Meta(ApiModel):
-    total: int
-    page: int
-    limit: int
+    total = conint(ge=0)
+    page: conint(ge=1) = 1  # type: ignore
+    limit: conint(ge=1, le=20) = 10  # type: ignore
 
 
 class ScannedShip(ApiModel):
     symbol: str
     registration: ShipRegistration
     nav: ShipNav
-    frame: dict[str, ShipFrameType] | None
-    reactor: dict[str, ShipReactorType] | None
-    engine: dict[str, ShipEngineType] | None
-    mounts: dict[str, ShipMountType] | None
+    frame: dict[str, ShipFrameType]
+    reactor: dict[str, ShipReactorType]
+    engine: dict[str, ShipEngineType]
+    mounts: dict[str, ShipMountType]
     
 
 class ScannedSystem(ApiModel):
-    symbol: str
-    sector_symbol: str
+    symbol = constr(min_length=1)
+    sector_symbol = constr(min_length=1)
     type: SystemType
     x: int
     y: int
@@ -536,9 +545,9 @@ class ScannedSystem(ApiModel):
 
 
 class ScannedWaypoint(ApiModel):
-    symbol: str
+    symbol = constr(min_length=1)
     type: WaypointType
-    system_symbol: str
+    system_symbol = constr(min_length=1)
     x: int
     y: int
     orbitals: list[Waypoint]
@@ -555,6 +564,7 @@ class Ship(ApiModel):
     frame: ShipFrame
     reactor: ShipReactor
     engine: ShipEngine
+    cooldown: Cooldown
     modules: list[ShipModule]
     mounts: list[ShipMount]
     cargo: ShipCargo
@@ -562,8 +572,8 @@ class Ship(ApiModel):
 
 
 class ShipCargo(ApiModel):
-    capacity: int
-    units: int
+    capacity = conint(ge=0)
+    units = conint(ge=0)
     inventory: list[ShipCargoItem]
 
 
@@ -571,10 +581,9 @@ class ShipCargoItem(ApiModel):
     symbol: str
     name: str
     description: str
-    units: int
+    units = conint(ge=1)
 
 
-# Figure out a way to handle this. A bit weird it's just a value
 class ShipCondition(ApiModel):
     value: conint(ge=0, le=100) # type: ignore
 
@@ -583,9 +592,9 @@ class ShipCrew(ApiModel):
     current: int
     required: int
     capacity: int
-    rotation: str
-    morale: int
-    wages: int
+    rotation: Literal["STRICT"] | Literal["RELAXED"] = "STRICT"
+    morale = conint(ge=0, le=100)
+    wages = conint(ge=0)
 
 
 class ShipEngine(ApiModel):
@@ -593,7 +602,7 @@ class ShipEngine(ApiModel):
     name: str
     description: str
     condition: ShipCondition
-    speed: int
+    speed: conint(ge=1)
     requirements: ShipRequirements
 
 
@@ -602,20 +611,20 @@ class ShipFrame(ApiModel):
     name: str
     description: str
     condition: ShipCondition
-    module_slots: int
-    mounting_points: int
-    fuel_capacity: int
+    module_slots: conint(ge=0)
+    mounting_points: conint(ge=0)
+    fuel_capacity: conint(ge=0)
     requirements: ShipRequirements
 
 
 class ShipFuel(ApiModel):
-    current: int
-    capacity: int
+    current: conint(ge=0)
+    capacity: conint(ge=0)
     consumed: ShipFuelConsumed
 
 
 class ShipFuelConsumed(ApiModel):
-    amount: int
+    amount: conint(ge=0)
     timestamp: datetime
 
 
@@ -623,7 +632,7 @@ class ShipModificationTransaction(ApiModel):
     waypoint_symbol: str
     ship_symbol: str
     trade_symbol: TradeGoodsSymbols
-    total_price: int
+    total_price: conint(ge=0)
     timestamp: datetime
 
 
