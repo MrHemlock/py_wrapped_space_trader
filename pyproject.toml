@@ -6,11 +6,14 @@ description = "A wrapper for SpaceTraders API"
 authors = [
     {name = "Daniel J Brown", email = "browndj3@gmail.com"},
 ]
-dependencies = []
+dependencies = [
+    "pydantic>=2.4.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
-
 
 [build-system]
 requires = ["pdm-backend"]
@@ -18,5 +21,6 @@ build-backend = "pdm.backend"
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "pydantic>=2.0.2",
+    "ruff>=0.0.291",
+    "black>=23.9.1",
 ]

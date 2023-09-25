@@ -399,6 +399,68 @@ class WaypointType(SymbolEnums):
     GRAVITY_WELL = auto()
 
 
+class WaypointTypeSymbol(SymbolEnums):
+    UNCHARTED = auto()
+    MARKETPLACE = auto()
+    SHIPYARD = auto()
+    OUTPOST = auto()
+    SCATTERED_SETTLEMENTS = auto()
+    SPRAWLING_CITIES = auto()
+    MEGA_STRUCTURES = auto()
+    OVERCROWDED = auto()
+    HIGH_TECH = auto()
+    CORRUPT = auto()
+    BUREAUCRATIC = auto()
+    TRADING_HUB = auto()
+    INDUSTRIAL = auto()
+    BLACK_MARKET = auto()
+    RESEARCH_FACILITY = auto()
+    MILITARY_BASE = auto()
+    SURVEILLANCE_OUTPOST = auto()
+    EXPLORATION_OUTPOST = auto()
+    MINERAL_DEPOSITS = auto()
+    COMMON_METAL_DEPOSITS = auto()
+    PRECIOUS_METAL_DEPOSITS = auto()
+    RARE_METAL_DEPOSITS = auto()
+    METHANE_POOLS = auto()
+    ICE_CRYSTALS = auto()
+    EXPLOSIVE_GASES = auto()
+    STRONG_MAGNETOSPHERE = auto()
+    VIBRANT_AURORAS = auto()
+    SALT_FLATS = auto()
+    CANYONS = auto()
+    PERPETUAL_DAYLIGHT = auto()
+    PERPETUAL_OVERCAST = auto()
+    DRY_SEABEDS = auto()
+    MAGMA_SEAS = auto()
+    SUPERVOLCANOES = auto()
+    ASH_CLOUDS = auto()
+    VAST_RUINS = auto()
+    MUTATED_FLORA = auto()
+    TERRAFORMED = auto()
+    EXTREME_TEMPERATURES = auto()
+    EXTREME_PRESSURE = auto()
+    DIVERSE_LIFE = auto()
+    SCARCE_LIFE = auto()
+    FOSSILS = auto()
+    WEAK_GRAVITY = auto()
+    STRONG_GRAVITY = auto()
+    CRUSHING_GRAVITY = auto()
+    TOXIC_ATMOSPHERE = auto()
+    CORROSIVE_ATMOSPHERE = auto()
+    BREATHABLE_ATMOSPHERE = auto()
+    JOVIAN = auto()
+    ROCKY = auto()
+    VOLCANIC = auto()
+    FROZEN = auto()
+    SWAMP = auto()
+    BARREN = auto()
+    TEMPERATE = auto()
+    JUNGLE = auto()
+    OCEAN = auto()
+    STRIPPED = auto()
+
+
 class Agent(ApiModel):
     account_id: str = Field(min_length=1) 
     symbol: str = Field(min_length=3, max_length=14)
@@ -425,7 +487,7 @@ class ConnectedSystem(ApiModel):
 
 
 class Contract(ApiModel):
-    id = constr(min_length=1)
+    id: str = Field(min_length=1)
     faction_symbol: FactionSymbols
     type: ContractType
     terms: ContractTerms
@@ -437,7 +499,7 @@ class Contract(ApiModel):
 
 class ContractDeliverGood(ApiModel):
     trade_symbol: TradeGoodsSymbols
-    destination_symbol = constr(min_length=1)
+    destination_symbol: str = Field(min_length=1)
     units_required: int
     units_fulfilled: int
 
@@ -454,14 +516,14 @@ class ContractTerms(ApiModel):
 
 
 class Cooldown(ApiModel):
-    ship_symbol = constr(min_length=1)
-    total_seconds = conint(ge=0)
-    remaining_seconds = conint(ge=0)
+    ship_symbol: str = Field(min_length=1)
+    total_seconds: int = Field(ge=0)
+    remaining_seconds: int = Field(ge=0)
     expiration: datetime
 
 
 class Extraction(ApiModel):
-    ship_symbol = constr(min_length=1)
+    ship_symbol: str = Field(min_length=1)
     yield_: ExtractionYield
 
 
@@ -472,9 +534,9 @@ class ExtractionYield(ApiModel):
 
 class Faction(ApiModel):
     symbol: FactionSymbols
-    name = constr(min_length=1)
-    description = constr(min_length=1)
-    headquarters = constr(min_length=1)
+    name: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    headquarters: str = Field(min_length=1)
     traits: list[FactionTrait]
     is_recruiting: bool
 
@@ -502,10 +564,10 @@ class Market(ApiModel):
 
 class MarketTradeGood(ApiModel):
     symbol: TradeGoodsSymbols
-    trade_volume = conint(ge=1)
+    trade_volume: int = Field(ge=1)
     supply: MarketSupply
-    purchase_price = conint(ge=0)
-    sell_price = conint(ge=0)
+    purchase_price: int = Field(ge=0)
+    sell_price: int = Field(ge=0)
 
 
 class MarketTransaction(ApiModel):
@@ -513,16 +575,16 @@ class MarketTransaction(ApiModel):
     ship_symbol: str
     trade_symbol: TradeGoodsSymbols
     type_: Literal["PURCHASE"] | Literal["SELL"]
-    units = conint(ge=0)
-    price_perUnit = conint(ge=0)
-    total_price = conint(ge=0)
+    units: int = Field(ge=0)
+    price_per_unit: int = Field(ge=0)
+    total_price: int = Field(ge=0)
     timestamp: datetime
 
 
 class Meta(ApiModel):
-    total = conint(ge=0)
-    page: conint(ge=1) = 1  # type: ignore
-    limit: conint(ge=1, le=20) = 10  # type: ignore
+    total: int = Field(ge=0)
+    page: int = Field(ge=1, default=1)  # type: ignore
+    limit: int = Field(ge=1, le=20, default=10) # type: ignore
 
 
 class ScannedShip(ApiModel):
@@ -536,8 +598,8 @@ class ScannedShip(ApiModel):
     
 
 class ScannedSystem(ApiModel):
-    symbol = constr(min_length=1)
-    sector_symbol = constr(min_length=1)
+    symbol: str = Field(min_length=1)
+    sector_symbol: str = Field(min_length=1)
     type: SystemType
     x: int
     y: int
@@ -545,9 +607,9 @@ class ScannedSystem(ApiModel):
 
 
 class ScannedWaypoint(ApiModel):
-    symbol = constr(min_length=1)
+    symbol: str = Field(min_length=1)
     type: WaypointType
-    system_symbol = constr(min_length=1)
+    system_symbol: str = Field(min_length=1)
     x: int
     y: int
     orbitals: list[Waypoint]
@@ -572,8 +634,8 @@ class Ship(ApiModel):
 
 
 class ShipCargo(ApiModel):
-    capacity = conint(ge=0)
-    units = conint(ge=0)
+    capacity: int = Field(ge=0)
+    units: int = Field(ge=0)
     inventory: list[ShipCargoItem]
 
 
@@ -581,11 +643,11 @@ class ShipCargoItem(ApiModel):
     symbol: str
     name: str
     description: str
-    units = conint(ge=1)
+    units: int = Field(ge=1)
 
 
 class ShipCondition(ApiModel):
-    value: conint(ge=0, le=100) # type: ignore
+    value: int = Field(ge=0, le=100) # type: ignore
 
 
 class ShipCrew(ApiModel):
@@ -593,8 +655,8 @@ class ShipCrew(ApiModel):
     required: int
     capacity: int
     rotation: Literal["STRICT"] | Literal["RELAXED"] = "STRICT"
-    morale = conint(ge=0, le=100)
-    wages = conint(ge=0)
+    morale: int = Field(ge=0, le=100)
+    wages: int = Field(ge=0)
 
 
 class ShipEngine(ApiModel):
@@ -602,7 +664,7 @@ class ShipEngine(ApiModel):
     name: str
     description: str
     condition: ShipCondition
-    speed: conint(ge=1)
+    speed: int = Field(ge=1)
     requirements: ShipRequirements
 
 
@@ -611,20 +673,20 @@ class ShipFrame(ApiModel):
     name: str
     description: str
     condition: ShipCondition
-    module_slots: conint(ge=0)
-    mounting_points: conint(ge=0)
-    fuel_capacity: conint(ge=0)
+    module_slots: int = Field(ge=0)
+    mounting_points: int = Field(ge=0)
+    fuel_capacity: int = Field(ge=0)
     requirements: ShipRequirements
 
 
 class ShipFuel(ApiModel):
-    current: conint(ge=0)
-    capacity: conint(ge=0)
+    current: str = Field(ge=0)
+    capacity: int = Field(ge=0)
     consumed: ShipFuelConsumed
 
 
 class ShipFuelConsumed(ApiModel):
-    amount: conint(ge=0)
+    amount: int = Field(ge=0)
     timestamp: datetime
 
 
@@ -632,14 +694,14 @@ class ShipModificationTransaction(ApiModel):
     waypoint_symbol: str
     ship_symbol: str
     trade_symbol: TradeGoodsSymbols
-    total_price: conint(ge=0)
+    total_price: int = Field(ge=0)
     timestamp: datetime
 
 
 class ShipModule(ApiModel):
     symbol: ShipModuleType
-    capacity: int
-    range: int
+    capacity: int = Field(ge=0)
+    range: int = Field(ge=0)
     name: str
     description: str
     requirements: ShipRequirements
@@ -649,7 +711,7 @@ class ShipMount(ApiModel):
     symbol: ShipMountType
     name: str
     description: str
-    strength: conint(ge=0) # type: ignore
+    strength: int = Field(ge=0)
     deposits: list[DepositType]
     requirements: ShipRequirements
 
@@ -664,15 +726,15 @@ class ShipNav(ApiModel):
 
 class ShipNavRoute(ApiModel):
     destination: ShipNavRouteWaypoint
-    departure: ShipNavRouteWaypoint
+    origin: ShipNavRouteWaypoint
     departure_time: datetime
     arrival: datetime
 
 
 class ShipNavRouteWaypoint(ApiModel):
-    symbol: str
+    symbol: str = Field(min_length=1)
     type: WaypointType
-    system_symbol: str
+    system_symbol: str = Field(min_length=1)
     x: int
     y: int
 
@@ -681,14 +743,14 @@ class ShipReactor(ApiModel):
     symbol: ShipReactorType
     name: str
     description: str
-    condition: conint(ge=0, le=100) # type: ignore
-    power_outage: conint(ge=1) # type: ignore
+    condition: int = Field(ge=0, le=100) # type: ignore
+    power_outage: int = Field(ge=1) # type: ignore
     requirements: ShipRequirements
 
 
 class ShipRegistration(ApiModel):
-    name: str
-    faction_symbol: str
+    name: str = Field(min_length=1)
+    faction_symbol: str = Field(min_length=1)
     role: ShipRole
 
 
@@ -698,17 +760,139 @@ class ShipRequirements(ApiModel):
     slots: int
 
 
-class ShipYard(ApiModel):
-    symbol: str
+class Shipyard(ApiModel):
+    symbol: str = Field(ge=1)
     ship_types: list[dict[str, ShipType]]
     transactions: list[ShipyardTransaction]
     ships: list[Ship]
+    modifications_fee: int
 
 
+class ShipyardShip(ApiModel):
+    type: ShipType
+    name: str
+    purchase_price: int
+    frame: ShipFrame
+    reactor: ShipReactor
+    engine: ShipEngine
+    modules: list[ShipModule]
+    mounts: list[ShipMount]
+    crew: ShipCrew
 
+
+class ShipyardTransaction(ApiModel):
+    waypoint_symbol: str
+    ship_symbol: str
+    price: int = Field(ge=0)
+    agent_symbol: str
+    timestampe: datetime
+
+
+class Survey(ApiModel):
+    signature: str = Field(min_length=1)
+    symbol: str = Field(min_length=1)
+    deposits: list[SurveyDeposit]
+    expiration: datetime
+    size: Literal["SMALL"] | Literal["MODERATE"] | Literal["LARGE"]
+
+
+class System(ApiModel):
+    symbol: str = Field(min_length=1)
+    sector_symbol: str = Field(min_length=1)
+    type: SystemType
+    x: int
+    y: int
+    waypoints: list[SystemWaypoint]
+    factions: list[FactionSymbols]
+
+
+class SystemWaypoint(ApiModel):
+    symbol: str
+    type: SystemType
+    x: int
+    y: int
+    orbitals: list[WaypointOrbital]
+    orbits: WaypointOrbital
+
+
+class WaypointOrbital(ApiModel):
+    symbol: str = Field(min_length=1)
+
+
+class Waypoint(ApiModel):
+    symbol: str = Field(min_length=1)
+    type: SystemType
+    system_symbol: str = Field(min_length=1)
+    x: int
+    y: int
+    orbitals: list[WaypointOrbital]
+    orbits: str = Field(min_length=1)
+    faction: FactionSymbols
+    traits: list[FactionTrait]
+    chart: Chart
+
+
+class WaypointTrait(ApiModel):
+    symbol: WaypointTypeSymbol
+    name: str
+    description: str
+
+
+class SurveyDeposit(ApiModel):
+    symbol: str
 
 
 class TradeGood:
     symbol: TradeGoodsSymbols
     name: str
     description: str
+
+
+# API endpoint response models
+class Status(ApiModel):
+    status: str
+    version: str
+    reset_date: str
+    description: str
+    stats: Stats
+    leaderboards: LeaderBoards
+    server_resets: ServerReset
+    announcements: list[Announcement]
+    links: list[Link]
+
+
+class Stats(ApiModel):
+    agents: int
+    ships: int
+    systems: int
+    waypoints: int
+
+
+class LeaderBoards(ApiModel):
+    most_credits: list[AgentCredits]
+    most_submitted_charts: list[AgentCharts]
+
+
+class AgentCredits(ApiModel):
+    agent_symbol: str
+    credits: int
+
+
+class AgentCharts(ApiModel):
+    agent_symbol: str
+    chart_count: int
+
+
+class ServerReset(ApiModel):
+    next: str
+    frequency: str
+
+
+class Announcement(ApiModel):
+    title: str
+    body: str
+
+
+class Link(ApiModel):
+    name: str
+    url: str
