@@ -162,5 +162,6 @@ cython_debug/
 .pdm-build
 
 
-# Ignoring locally made notes for reference
+# Ignoring locally made folders for extra stuff
 notes/
+helping/

@@ -1,15 +1,13 @@
-
 from __future__ import annotations
 
 from enum import auto, StrEnum
 from datetime import datetime
-from typing import Annotated, Any, Literal
+from typing import Any, Literal
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    ValidationError,
 )
 from pydantic.alias_generators import to_camel
 
@@ -846,53 +844,3 @@ class TradeGood:
     symbol: TradeGoodsSymbols
     name: str
     description: str
-
-
-# API endpoint response models
-class Status(ApiModel):
-    status: str
-    version: str
-    reset_date: str
-    description: str
-    stats: Stats
-    leaderboards: LeaderBoards
-    server_resets: ServerReset
-    announcements: list[Announcement]
-    links: list[Link]
-
-
-class Stats(ApiModel):
-    agents: int
-    ships: int
-    systems: int
-    waypoints: int
-
-
-class LeaderBoards(ApiModel):
-    most_credits: list[AgentCredits]
-    most_submitted_charts: list[AgentCharts]
-
-
-class AgentCredits(ApiModel):
-    agent_symbol: str
-    credits: int
-
-
-class AgentCharts(ApiModel):
-    agent_symbol: str
-    chart_count: int
-
-
-class ServerReset(ApiModel):
-    next: str
-    frequency: str
-
-
-class Announcement(ApiModel):
-    title: str
-    body: str
-
-
-class Link(ApiModel):
-    name: str
-    url: str
