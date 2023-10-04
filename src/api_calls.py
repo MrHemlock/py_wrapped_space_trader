@@ -1,7 +1,12 @@
 from os import getenv
 
 import dotenv
-import requests
+from requests_ratelimiter import (
+    Duration,
+    Limiter,
+    LimiterSession,
+    RequestRate,
+)
 
 from api_models import (
     Status,
@@ -18,10 +23,14 @@ HEADERS = {
     "Accept": "application/json",
     "Authorization": f"Bearer {TOKEN}",
 }
+STANDARD_RATE = RequestRate(2, Duration.SECOND)
+BURST_RATE = RequestRate(10, Duration.SECOND * 10)
+RATES = Limiter(STANDARD_RATE, BURST_RATE)
+# session = LimiterSession(limiter=RATES, headers=HEADERS)
 
 
-def get_status():
-    response = requests.get(BASE_URL, headers=HEADERS)
+def get_status(session: LimiterSession) -> Status:
+    response = session.get(BASE_URL, headers=HEADERS)
     status = Status(**response.json())
     return status
 
@@ -29,3 +38,7 @@ def get_status():
 def register_new_agent(
 ):
     ...
+
+
+if __name__ == "__main__":
+    session = LimiterSession(limiter=RATES, headers=HEADERS)

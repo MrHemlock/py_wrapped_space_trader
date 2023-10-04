@@ -11,6 +11,7 @@ dependencies = [
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
     "email-validator>=2.0.0.post2",
+    "requests-ratelimiter>=0.4.1",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
@@ -24,4 +25,6 @@ build-backend = "pdm.backend"
 dev = [
     "ruff>=0.0.291",
     "black>=23.9.1",
+    "ipython>=8.15.0",
+    "rich>=13.5.3",
 ]
