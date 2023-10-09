@@ -8,10 +8,10 @@ authors = [
 ]
 dependencies = [
     "pydantic>=2.4.0",
-    "requests>=2.31.0",
     "python-dotenv>=1.0.0",
     "email-validator>=2.0.0.post2",
-    "requests-ratelimiter>=0.4.1",
+    "aiohttp[speedups]>=3.9.0b0",
+    "pyrate-limiter>=3.1.0",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
@@ -27,4 +27,5 @@ dev = [
     "black>=23.9.1",
     "ipython>=8.15.0",
     "rich>=13.5.3",
+    "pre-commit>=3.4.0",
 ]
